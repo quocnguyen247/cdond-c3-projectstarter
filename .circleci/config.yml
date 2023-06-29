@@ -28,7 +28,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm run webpack
+            # npm run webpack
             npm run start:hmr
       - save_cache:
           paths: [backend/node_modules]
