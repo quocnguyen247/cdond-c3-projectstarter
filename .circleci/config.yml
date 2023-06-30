@@ -33,7 +33,7 @@ commands:
           command: |
             sudo apt update -y
             sudo apt install python3.8 -y
-            python --version
+            python3 --version
     
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -60,7 +60,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS = 1 
+            export SUCCESS = 1 
             # $(cat ~/migration_output.txt)
             # Logic for reverting the database state
             if (( $SUCCESS == 1 ));
