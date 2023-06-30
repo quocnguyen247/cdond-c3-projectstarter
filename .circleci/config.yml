@@ -3,16 +3,19 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-    #   id: 
-    #     type: string  
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       # - run: echo << parameters.id >>
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+            aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
 
 jobs:
   build-frontend:
@@ -114,9 +117,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \ 
-              --tags project=udapeople
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -129,12 +132,16 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> inventory.txt
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment
+      
   # configure-infrastructure:
   #   docker:
   #     - image: python:3.7-alpine3.11
