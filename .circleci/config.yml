@@ -60,7 +60,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(cat ~/migration_output.txt)
+            SUCCESS = 1 
+            # $(cat ~/migration_output.txt)
             # Logic for reverting the database state
             if (( $SUCCESS == 1 ));
             then
@@ -234,10 +235,7 @@ jobs:
             then
               echo "1" > ~/migration_output.txt
             fi
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - migration_output.txt
+
   deploy-frontend:
     docker:
       - image: cimg/base:stable
