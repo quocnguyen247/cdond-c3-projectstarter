@@ -17,9 +17,23 @@ commands:
           name: Install Ansible
           command: |
             sudo apt update -y
-            # sudo apt install software-properties-common -y
-            # sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible -y
+  install_nodejs:
+    description: Install Nodejs 13
+    steps:
+      - run:
+          name: Install nodejs 13
+          command: |
+            curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+  install_python3:
+    description: Install Python 3
+    steps:
+      - run:
+          name: Install Python 3
+          command: |
+            sudo apt update -y
+            sudo apt install python3.8 -y
+            python --version
     
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -36,6 +50,24 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
             aws s3 rm s3://udapeople-<<parameters.Workflow_ID>> --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.Workflow_ID >>
+
+  revert-migrations:
+    description: Revert migration
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            SUCCESS=$(cat ~/migration_output.txt)
+            # Logic for reverting the database state
+            if (( $SUCCESS == 1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
 
 jobs:
   build-frontend:
@@ -181,26 +213,69 @@ jobs:
             ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment
       
-  # deploy-frontend:
-  #   docker:
-  #     - image: amazon/aws-cli@4.0.0
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo "${API_URL}"
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure 
+  run-migrations:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration status to kvdb.io OR memstash.io
+          command: |   
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              echo "1" > ~/migration_output.txt
+            fi
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - migration_output.txt
+  deploy-frontend:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      # Checkout code from git
+      - checkout
+      - install_aws
+      - install_ansible
+      - install_nodejs
+      - install_python3
+      - restore_cache:
+          keys: [frontend-deps]
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      # - destroy-environment
+      - revert-migrations
 
 workflows:
   default:
