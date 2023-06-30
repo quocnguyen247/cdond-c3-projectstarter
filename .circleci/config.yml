@@ -1,6 +1,26 @@
 version: 2.1
 
 commands:
+  install_aws:
+    description: Install AWS CLI v2
+    steps:
+      - run:
+          name: Install AWS CLI v2
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+  install_ansible:
+    description: Install Ansible
+    steps:
+      - run:
+          name: Install Ansible
+          command: |
+            sudo apt update -y
+            # sudo apt install software-properties-common -y
+            # sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+    
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -108,10 +128,11 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
       # Checkout code from git
       - checkout
+      - install_aws
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -142,25 +163,24 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
 
-  # configure-infrastructure:
-  #   docker:
-  #     - image: python:3.7-alpine3.11
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"] # You can get this ID in the section where you registered the SSH Key
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # install the dependencies needed for your playbook
-  #           apk add --update ansible 
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
-      # Here's where you will add some code to rollback on failure  
+  configure-infrastructure:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_aws
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"] # You can get this ID in the section where you registered the SSH Key
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure server
+          command: |
+            cat .circleci/ansible/inventory.txt
+            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+      - destroy-environment
+      
   # deploy-frontend:
   #   docker:
   #     - image: amazon/aws-cli@4.0.0
@@ -200,3 +220,5 @@ workflows:
           filters:
             branches:
               only: [deploy-infra]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
