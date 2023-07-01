@@ -283,7 +283,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      # Add ssh keys with fingerprint
       - install_aws
       - install_ansible
       - install_nodejs
@@ -297,29 +296,29 @@ jobs:
             ls -ll
             cd backend
             npm install
-      - run:
-          name: Package Backend
-          command: |
-            cd backend
-            npm run build
-            ls -ll
-            ## Zip the directory
-            tar -czf artifact.tar.gz package* dist/* 
-            cd ..
-            ls -ll
-            cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
-            echo "copy complete"
-            ls -ll .circleci/ansible/roles/deploy/files
+      # - run:
+      #     name: Package Backend
+      #     command: |
+      #       cd backend
+      #       npm run build
+      #       ls -ll
+      #       ## Zip the directory
+      #       tar -czf artifact.tar.gz package* dist/* 
+      #       cd ..
+      #       ls -ll
+      #       cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+      #       echo "copy complete"
+      #       ls -ll .circleci/ansible/roles/deploy/files
             
-      - run:
-          name: Deploy backend
-          command: |
-            cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml 
-      - destroy-environment
-      - revert-migrations
+      # - run:
+      #     name: Deploy backend
+      #     command: |
+      #       cd .circleci/ansible
+      #       echo "Contents  of the inventory.txt file is -------"
+      #       cat inventory.txt
+      #       ansible-playbook -i inventory.txt deploy-backend.yml 
+      # - destroy-environment
+      # - revert-migrations
 
   smoke-test:
     docker:
@@ -371,7 +370,20 @@ jobs:
             fi
       - destroy-environment
       - revert-migrations
-
+  cloudfront-update:
+    docker:
+      - image: circleci/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            # your code here
 workflows:
   default:
     jobs:
@@ -397,5 +409,5 @@ workflows:
           # requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [configure-infrastructure]
-      - deploy-backend: 
-          requires: [configure-infrastructure]
+      - deploy-backend # : 
+          # requires: [configure-infrastructure]
