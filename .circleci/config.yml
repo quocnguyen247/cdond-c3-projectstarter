@@ -62,7 +62,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            export SUCCESS = "1" 
+            SUCCESS="1" 
             # $(cat ~/migration_output.txt)
             # Logic for reverting the database state
             if [ "$SUCCESS" == "1" ]
@@ -309,7 +309,7 @@ jobs:
             tar -czf artifact.tar.gz package* dist/* 
             ls -ll
             cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             echo "copy complete"
             ls -ll .circleci/ansible/roles/deploy/files
             
