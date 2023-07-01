@@ -99,6 +99,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
+            ls -ll
             cd backend
             npm install
             npm run build
@@ -414,5 +415,5 @@ workflows:
           # requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [configure-infrastructure]
-      - deploy-backend: 
-          requires: [configure-infrastructure]
+      - deploy-backend # : 
+          #requires: [configure-infrastructure]
