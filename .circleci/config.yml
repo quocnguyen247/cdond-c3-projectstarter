@@ -292,18 +292,22 @@ jobs:
       # attach workspace
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-deps]
       - run:
           name: Install dependencies
           command: |
             cd backend
             npm i
             npm run build
+            ls -ll
             cd ..
             ## Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
-            cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
+            # tar -C backend -czvf artifact.tar.gz .
+            # cd .circleci/ansible
+            # echo "Contents  of the inventory.txt file is -------"
+            # cat inventory.txt
+            # ansible-playbook -i inventory.txt deploy-backend.yml
       - run:
           name: Deploy backend
           command: |
