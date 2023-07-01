@@ -86,7 +86,6 @@ jobs:
             cd frontend
             npm install
             npm run build
-            echo $TYPEORM_HOST
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
