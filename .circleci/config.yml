@@ -309,7 +309,8 @@ jobs:
             tar -czf artifact.tar.gz package* dist/* 
             ls -ll
             cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+            sudo chmod -R 755 .circleci/ansible/roles/deploy/files
+            cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             echo "copy complete"
             ls -ll .circleci/ansible/roles/deploy/files
             
@@ -337,9 +338,9 @@ jobs:
           name: Install dependencies
           command: |
             cd backend
-            npm íntall
+            npm intall
       - run:
-          name: Get backend url
+          name: Get backend url & Backend smoke test.
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -353,14 +354,26 @@ jobs:
             else
               return 1
             fi
-      - run:
-          name: Backend smoke test.
-          command: |
-            # your code here
+      
+      - restore_cache:
+          keys: [frontend-build]
+
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
+            cd frontend
+            npm intall
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+              # Change this to 0 after the job fails
+              return 0
+            else
+              return 1
+            fi
+      - destroy-environment
+      - revert-migrations
 
 workflows:
   default:
