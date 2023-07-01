@@ -20,7 +20,6 @@
     TYPEORM_DATABASE: "{{ TYPEORM_DATABASE }}"
     TYPEORM_MIGRATIONS: "{{ TYPEORM_MIGRATIONS }}"
     TYPEORM_MIGRATIONS_DIR: "{{ TYPEORM_MIGRATIONS_DIR }}"
-  no_log: true
 
 - name: Installing Node Dependencies
   shell: |
