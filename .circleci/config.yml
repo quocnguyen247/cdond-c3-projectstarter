@@ -289,9 +289,6 @@ jobs:
       - install_nodejs
       - add_ssh_keys:
           fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"]
-      # attach workspace
-      - attach_workspace:
-          at: ~/
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -309,7 +306,6 @@ jobs:
             tar -czf artifact.tar.gz package* dist/* 
             cd ..
             ls -ll
-            sudo chmod -R 755 .circleci/ansible/roles/deploy/files
             cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             echo "copy complete"
             ls -ll .circleci/ansible/roles/deploy/files
