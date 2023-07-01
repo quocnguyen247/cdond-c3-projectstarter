@@ -177,8 +177,9 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat .circleci/ansible/inventory.txt
-            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       
   # deploy-frontend:
