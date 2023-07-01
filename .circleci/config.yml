@@ -281,21 +281,20 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      # Checkout code from git
       - checkout
       # - install_aws
       # - install_ansible
-      - install_nodejs
-      - add_ssh_keys:
-          fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"]
+      # - install_nodejs
+      # - add_ssh_keys:
+      #     fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"]
       # - restore_cache:
       #     keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
             ls -ll
-            cd backend
-            npm install
+            # cd backend
+            # npm install
       # - run:
       #     name: Package Backend
       #     command: |
