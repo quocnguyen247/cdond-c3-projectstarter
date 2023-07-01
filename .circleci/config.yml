@@ -69,7 +69,7 @@ commands:
             then
               cd ~/project/backend
               npm install
-              npm run migration:revert
+              npm run migrations:revert
             fi
 
 jobs:
@@ -99,6 +99,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
+            ls -ll
             cd backend
             npm install
             npm run build
@@ -310,10 +311,10 @@ jobs:
             ## Zip the directory
             tar -czf artifact.tar.gz package* dist/* 
             cd ..
-            ls -ll
+            ls -ll .circleci/ansible/roles/deploy
+            echo "copy files"
             cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
-            echo "copy complete"
-            ls -ll .circleci/ansible/roles/deploy/files
+            
             
       - run:
           name: Deploy backend
@@ -414,5 +415,7 @@ workflows:
           # requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [configure-infrastructure]
-      - deploy-backend: 
+      - deploy-backend:
           requires: [configure-infrastructure]
+      - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
