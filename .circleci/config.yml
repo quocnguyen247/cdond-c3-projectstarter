@@ -281,21 +281,26 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      # Checkout code from git
       - checkout
-      # - install_aws
-      # - install_ansible
-      - install_nodejs
+      - install_aws
+      - install_ansible
       - add_ssh_keys:
-          fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"]
+          fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"] # You can get this ID in the section where you registered the SSH Key
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
       # - restore_cache:
       #     keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
             ls -ll
-            cd backend
-            npm install
+            # cd backend
+            # npm install
       # - run:
       #     name: Package Backend
       #     command: |
