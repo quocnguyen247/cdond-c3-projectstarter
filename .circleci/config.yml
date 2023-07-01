@@ -307,8 +307,8 @@ jobs:
             ls -ll
             ## Zip the directory
             tar -czf artifact.tar.gz package* dist/* 
-            ls -ll
             cd ..
+            ls -ll
             sudo chmod -R 755 .circleci/ansible/roles/deploy/files
             cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             echo "copy complete"
