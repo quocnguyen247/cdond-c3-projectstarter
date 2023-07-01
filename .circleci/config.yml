@@ -62,7 +62,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            export SUCCESS = "1" 
+            SUCCESS="1" 
             # $(cat ~/migration_output.txt)
             # Logic for reverting the database state
             if [ "$SUCCESS" == "1" ]
