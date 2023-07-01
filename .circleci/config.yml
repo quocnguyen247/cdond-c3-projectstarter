@@ -277,7 +277,38 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # - destroy-environment
       - revert-migrations
-
+  deploy-backend:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - install_aws
+      - install_ansible
+      - install_nodejs
+      - add_ssh_keys:
+          fingerprints: ["e4:00:54:d3:47:f9:ba:db:d3:86:7d:c6:94:25:3b:4c"]
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            ## Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
 workflows:
   default:
     jobs:
@@ -302,4 +333,6 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # requires: [configure-infrastructure]
       - deploy-frontend:
-          requires: [run-migrations]
+          requires: [configure-infrastructure]
+      - deploy-backend: 
+          requires: [configure-infrastructure]
