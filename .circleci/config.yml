@@ -240,6 +240,7 @@ jobs:
               echo "Success"
               echo "1" > ~/migration_output.txt
             fi
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -353,12 +354,6 @@ jobs:
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            # if curl "${API_URL}/api/status" | grep "ok"
-            # then
-            #   return 0
-            # else
-            #   return 1
-            # fi
       
       - restore_cache:
           keys: [frontend-build]
@@ -402,8 +397,8 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name InitialStack-${OldWorkflow_ID} \
               --tags project=udapeople
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
 
   cleanup:
     docker:
