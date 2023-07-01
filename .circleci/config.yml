@@ -366,7 +366,7 @@ jobs:
           name: Frontend smoke test.
           command: |
             cd frontend
-            npm intall
+            npm install
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
@@ -376,8 +376,8 @@ jobs:
             else
               return 1
             fi
-      # - destroy-environment
-      # - revert-migrations
+      - destroy-environment
+      - revert-migrations
   cloudfront-update:
     docker:
       - image: cimg/base:stable
