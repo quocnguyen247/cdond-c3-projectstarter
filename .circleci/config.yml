@@ -25,6 +25,8 @@ commands:
           name: Install nodejs 13
           command: |
             curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs 
+            npm -v
   install_python3:
     description: Install Python 3
     steps:
