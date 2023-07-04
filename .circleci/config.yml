@@ -109,6 +109,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -126,6 +127,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      # - notify_slack_pass
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -217,8 +219,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - notify_slack_error
-      - notify_slack_pass
+
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -249,8 +250,7 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      - notify_slack_error
-      - notify_slack_pass
+
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       
@@ -279,8 +279,7 @@ jobs:
               curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
             echo "WorkdlowID=${CIRCLE_WORKFLOW_ID:0:7}"
-      - notify_slack_error
-      - notify_slack_pass
+
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -320,8 +319,7 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - notify_slack_error
-      - notify_slack_pass
+
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -368,8 +366,7 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
-      - notify_slack_error
-      - notify_slack_pass
+
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -412,12 +409,10 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
               # Change this to 0 after the job fails
-              return 0
+              exit 0
             else
-              return 1
+              exit 1
             fi
-      - notify_slack_error
-      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -446,8 +441,6 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name InitialStack \
               --tags project=udapeople
-      - notify_slack_error
-      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -479,8 +472,6 @@ jobs:
             else
               echo "CANNOT DELETE"
             fi
-      - notify_slack_error
-      - notify_slack_pass
 workflows:
   default:
     jobs:
