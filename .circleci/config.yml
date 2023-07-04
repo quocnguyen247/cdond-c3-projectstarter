@@ -217,6 +217,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -247,6 +249,8 @@ jobs:
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       
@@ -275,6 +279,8 @@ jobs:
               curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
             echo "WorkdlowID=${CIRCLE_WORKFLOW_ID:0:7}"
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
