@@ -1,5 +1,9 @@
 version: 2.1
 
+# orbs Slack notification
+orbs:
+  slack: circleci/slack@4.3.0
+
 commands:
   install_aws:
     description: Install AWS CLI v2
@@ -75,6 +79,18 @@ commands:
               npm install
               npm run migrations:revert
             fi
+
+  notify_slack_error:
+    steps:
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+  notify_slack_pass:
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
 
 jobs:
   build-frontend:
@@ -298,6 +314,8 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -344,6 +362,8 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -386,10 +406,12 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
               # Change this to 0 after the job fails
-              return 1
+              return 0
             else
               return 1
             fi
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -418,6 +440,8 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name InitialStack \
               --tags project=udapeople
+      - notify_slack_error
+      - notify_slack_pass
       - destroy-environment:
           Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -449,6 +473,8 @@ jobs:
             else
               echo "CANNOT DELETE"
             fi
+      - notify_slack_error
+      - notify_slack_pass
 workflows:
   default:
     jobs:
