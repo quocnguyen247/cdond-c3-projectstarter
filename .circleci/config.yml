@@ -109,6 +109,8 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - notify_slack_error
+      - notify_slack_pass
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -126,6 +128,8 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - notify_slack_error
+      - notify_slack_pass
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
