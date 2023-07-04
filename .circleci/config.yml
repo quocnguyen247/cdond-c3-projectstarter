@@ -127,7 +127,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - notify_slack_pass
+      # - notify_slack_pass
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
