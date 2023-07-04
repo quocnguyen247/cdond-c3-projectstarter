@@ -55,6 +55,10 @@ commands:
 
   revert-migrations:
     description: Revert migration
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - attach_workspace:
           at: ~/
@@ -62,10 +66,10 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS="1" 
-            # $(cat ~/migration_output.txt)
+            SUCCESS=$(curl -H "token: C9v4gvD6n3a2LM5b7QvwyX" --request GET https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_<< parameters.Workflow_ID >>)
+            echo $SUCCESS
             # Logic for reverting the database state
-            if [ "$SUCCESS" == "1" ]
+            if [[ "$SUCCESS" == "success" ]]
             then
               cd ~/project/backend
               npm install
@@ -197,7 +201,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   configure-infrastructure:
     docker:
@@ -213,10 +218,21 @@ jobs:
       - run:
           name: Configure server
           command: |
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            cat backend/.env
             cd .circleci/ansible
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
       
   run-migrations:
     docker:
@@ -240,8 +256,11 @@ jobs:
             then
               echo "Success"
               echo "1" > ~/migration_output.txt
+              curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
-      - destroy-environment
+            echo "WorkdlowID=${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
@@ -279,8 +298,10 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment
-      - revert-migrations
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
   deploy-backend:
     docker:
       - image: cimg/base:stable
@@ -300,37 +321,33 @@ jobs:
             cat inventory.txt
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            cd backend
-            npm install
+
       - run:
           name: Package Backend
           command: |
             cd backend
+            npm install
             npm run build
-            ls -ll
-            ## Zip the directory
-            tar -czf artifact.tar.gz package* dist/* 
             cd ..
-            ls -ll .circleci/ansible/roles/deploy
+            tar -C backend -czvf artifact.tar.gz .
             echo "copy files"
-            cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
+            cp -rn artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             
             
       - run:
           name: Deploy backend
           command: |
-            export TYPEORM_MIGRATIONS_DIR="./src/migrations"
-            export TYPEORM_ENTITIES="./src/modules/domain/**/*.entity{.ts,.js}"
-            export TYPEORM_MIGRATIONS="./src/migrations/*.ts"
+            export TYPEORM_MIGRATIONS_DIR="./migrations"
+            export TYPEORM_ENTITIES="./modules/domain/**/*.entity{.ts,.js}"
+            export TYPEORM_MIGRATIONS="./migrations/*.ts"
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml 
-      - destroy-environment
-      - revert-migrations
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   smoke-test:
     docker:
@@ -373,8 +390,10 @@ jobs:
             else
               exit 1
             fi
-      - destroy-environment
-      - revert-migrations
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
   cloudfront-update:
     docker:
       - image: cimg/base:stable
@@ -398,8 +417,10 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --stack-name InitialStack-${OldWorkflow_ID} \
               --tags project=udapeople
-      - destroy-environment
-      - revert-migrations
+      - destroy-environment:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          Workflow_ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cleanup:
     docker:
