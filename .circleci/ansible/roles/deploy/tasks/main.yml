@@ -28,8 +28,8 @@
 - name: Executing Node app with PM2
   shell: |
     cd ~/backend-app/
-    pm2 stop backend
-    pm2 delete backend
+    pm2 stop default
+    pm2 delete default
     pm2 start npm -- start
   register: execute_node
 
