@@ -319,21 +319,15 @@ jobs:
             cat inventory.txt
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            cd backend
-            npm install
+
       - run:
           name: Package Backend
           command: |
             cd backend
+            npm install
             npm run build
-            ls -ll
-            ## Zip the directory
-            tar -czf artifact.tar.gz package* dist/* 
             cd ..
-            ls -ll .circleci/ansible/roles/deploy
+            npm install
             echo "copy files"
             cp -rn backend/artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             
