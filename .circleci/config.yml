@@ -79,7 +79,22 @@ commands:
               npm install
               npm run migrations:revert
             fi
-
+  export_env:
+    description: Export environment variable
+    steps:
+      - run:
+          name: Export environment variable
+          command: |
+            cd backend
+            echo TYPEORM_CONNECTION=postgres > .env
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations > .env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts .env
+            echo  TYPEORM_MIGRATIONS=./src/migrations/*.ts > .env
+            echo TYPEORM_HOST=database-1.c3lljb3oz9hb.us-east-1.rds.amazonaws.com > .env
+            echo TYPEORM_PORT=5432 > .env
+            echo TYPEORM_USERNAME=postgres > .env
+            echo TYPEORM_PASSWORD=mypassword > .env 
+            echo TYPEORM_DATABASE=postgres > .env 
   notify_slack_error:
     steps:
       - slack/notify:
@@ -260,8 +275,8 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - restore_cache:
-          keys: [backend-build]
+      - install_aws
+      - export_env
       - run:
           name: Run migrations
           command: |
@@ -276,7 +291,7 @@ jobs:
             then
               echo "Success"
               echo "1" > ~/migration_output.txt
-              curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_code -d "1"
+              curl --insecure https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_code -d "1"
             else
               echo "Migration Fail"
             fi
