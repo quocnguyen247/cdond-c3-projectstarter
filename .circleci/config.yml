@@ -70,7 +70,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: C9v4gvD6n3a2LM5b7QvwyX" --request GET https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --request GET https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_code)
             echo $SUCCESS
             # Logic for reverting the database state
             if [[ "$SUCCESS" == "1" ]]
@@ -276,7 +276,7 @@ jobs:
             then
               echo "Success"
               echo "1" > ~/migration_output.txt
-              curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_${CIRCLE_WORKFLOW_ID:0:7} -d "1"
+              curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_code -d "1"
             else
               echo "Migration Fail"
             fi
