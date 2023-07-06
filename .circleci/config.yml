@@ -94,7 +94,7 @@ commands:
             echo TYPEORM_PORT=5432 > .env
             echo TYPEORM_USERNAME=postgres > .env
             echo TYPEORM_PASSWORD=mypassword > .env 
-            echo TYPEORM_DATABASE=postgres > .env 
+            echo TYPEORM_DATABASE=my_udacity_db > .env 
   notify_slack_error:
     steps:
       - slack/notify:
