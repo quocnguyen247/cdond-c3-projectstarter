@@ -79,22 +79,7 @@ commands:
               npm install
               npm run migrations:revert
             fi
-  export_env:
-    description: Export environment variable
-    steps:
-      - run:
-          name: Export environment variable
-          command: |
-            cd backend
-            echo TYPEORM_CONNECTION=postgres > .env
-            echo TYPEORM_MIGRATIONS_DIR=./migrations > .env
-            echo TYPEORM_ENTITIES=./modules/domain/**/*.entity.ts .env
-            echo  TYPEORM_MIGRATIONS=./migrations/*.ts > .env
-            echo TYPEORM_HOST=database-1.c3lljb3oz9hb.us-east-1.rds.amazonaws.com > .env
-            echo TYPEORM_PORT=5432 > .env
-            echo TYPEORM_USERNAME=postgres > .env
-            echo TYPEORM_PASSWORD=mypassword > .env 
-            echo TYPEORM_DATABASE=my_udacity_db > .env 
+  
   notify_slack_error:
     steps:
       - slack/notify:
@@ -276,7 +261,6 @@ jobs:
       # Checkout code from git
       - checkout
       - install_aws
-      - export_env
       - run:
           name: Run migrations
           command: |
@@ -506,7 +490,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [deploy-infra]
+              only: [deploy-infra2]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
