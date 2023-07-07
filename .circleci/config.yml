@@ -70,16 +70,16 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: C9v4gvD6n3a2LM5b7QvwyX" --request GET https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_<< parameters.Workflow_ID >>)
+            SUCCESS=$(curl --request GET https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_code)
             echo $SUCCESS
             # Logic for reverting the database state
-            if [[ "$SUCCESS" == "success" ]]
+            if [[ "$SUCCESS" == "1" ]]
             then
               cd ~/project/backend
               npm install
               npm run migrations:revert
             fi
-
+  
   notify_slack_error:
     steps:
       - slack/notify:
@@ -260,8 +260,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - restore_cache:
-          keys: [backend-build]
+      - install_aws
       - run:
           name: Run migrations
           command: |
@@ -276,7 +275,9 @@ jobs:
             then
               echo "Success"
               echo "1" > ~/migration_output.txt
-              curl https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+              curl --insecure https://kvdb.io/C9v4gvD6n3a2LM5b7QvwyX/migration_code -d "1"
+            else
+              echo "Migration Fail"
             fi
             echo "WorkdlowID=${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -489,7 +490,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [deploy-infra]
+              only: [deploy-infra2]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
