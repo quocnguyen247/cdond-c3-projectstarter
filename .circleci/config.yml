@@ -13,10 +13,16 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: true
       - run:
-          name: Build and push Docker image
+          name: Build Docker image
           command: |
             chmod +x run_docker.sh
             ./run_docker.sh
+
+      - run:
+          name: Making predictions
+          command: |
+            chmod +x make_prediction.sh
+            ./make_prediction.sh
  
 workflows:
   Build-Docker:
