@@ -15,6 +15,7 @@ jobs:
       - run:
           name: Build and push Docker image
           command: |
+            chmod +x run_docker.sh
             ./run_docker.sh
  
 workflows:
