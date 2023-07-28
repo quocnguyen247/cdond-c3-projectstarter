@@ -5,7 +5,7 @@ orbs:
 
 
 jobs:
-  build-docker-image:
+  build:
     docker:
       - image: cimg/base:2023.05
     steps:
@@ -17,3 +17,7 @@ jobs:
           command: |
             ./run_docker.sh
  
+workflows:
+  Build-Docker:
+    jobs:
+      - build
