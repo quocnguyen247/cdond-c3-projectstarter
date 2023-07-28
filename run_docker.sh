@@ -17,5 +17,5 @@ python3 -m venv venv
 make install
 wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
 chmod +x /bin/hadolint
-hadolint --ignore DL3013 Dockerfile
+/bin/hadolint --ignore DL3013 Dockerfile
 docker run -d appml:v1.0.1 -p 8000:80 
