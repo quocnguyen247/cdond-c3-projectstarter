@@ -12,7 +12,7 @@ COPY . .
 
 # hadolint ignore=DL3013
 RUN pip3 install -r requirements.txt \
- && hadolint --ignore DL3013 -
+ && hadolint --ignore DL3013 < Dockerfile
 ## Step 4:
 # Expose port 80
 EXPOSE 80
