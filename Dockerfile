@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.7.3-stretch
 
 ## Step 1:
 # Create a working directory
@@ -11,8 +11,7 @@ COPY . .
 # Install packages from requirements.txt
 
 # hadolint ignore=DL3013
-RUN pip3 install -r requirements.txt \
- && hadolint --ignore DL3013 < Dockerfile
+RUN pip3 install -r requirements.txt
 ## Step 4:
 # Expose port 80
 EXPOSE 80

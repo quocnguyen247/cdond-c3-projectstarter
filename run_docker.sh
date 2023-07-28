@@ -12,4 +12,10 @@ docker images
 
 # Step 3: 
 # Run flask app
-docker run -d appml:v1.0.1 -p 8000:80
+python3 -m venv venv
+. venv/bin/activate
+make install
+wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+chmod +x /bin/hadolint
+hadolint --ignore DL3013 Dockerfile
+docker run -d appml:v1.0.1 -p 8000:80 
