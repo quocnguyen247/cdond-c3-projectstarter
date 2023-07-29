@@ -52,6 +52,7 @@ jobs:
           name: Making predictions
           command: |
             docker ps -a
+            sudo netstat -tulpn | grep :80
             chmod +x make_prediction.sh
             ./make_prediction.sh
  
