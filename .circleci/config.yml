@@ -1,7 +1,36 @@
 version: 2.1
 
 jobs:
-  build:
+  build-hadolint:
+    docker:
+      - image: python:3.7.3-stretch
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "requirements.txt" }}
+            - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            make install
+            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
+            chmod +x /bin/hadolint
+
+      - save_cache:
+          paths: 
+            - ./venv
+          key: v1-dependencies-{{ checksum "requirements.txt" }}
+      - run:
+          name: run lint
+          command: |
+            . venv/bin/activate
+            make lint
+            /bin/hadolint --ignore DL3013 Dockerfile
+
+  build-docker:
     docker:
       - image: cimg/base:2023.07
     steps:
@@ -20,16 +49,6 @@ jobs:
             ./run_docker.sh
 
       - run:
-          name: Hadolint test
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            make install
-            wget -O /bin/hadolint https://github.com/hadolint/hadolint/releases/download/v1.16.3/hadolint-Linux-x86_64 &&\
-            chmod +x /bin/hadolint
-            /bin/hadolint --ignore DL3013 Dockerfile
-
-      - run:
           name: Making predictions
           command: |
             chmod +x make_prediction.sh
@@ -38,4 +57,5 @@ jobs:
 workflows:
   Build-Docker:
     jobs:
-      - build
+      - build-hadolint
+      - build-docker
