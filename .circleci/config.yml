@@ -17,6 +17,7 @@ jobs:
           command: |
             sudo apt update
             sudo apt upgrade -y
+            docker -version
             chmod +x run_docker.sh
             ./run_docker.sh
 
