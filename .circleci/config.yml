@@ -10,8 +10,15 @@ jobs:
       - run:
           name: Build Docker image
           command: |
+            wget https://launchpad.net/ubuntu/+source/docker.io/20.10.2-0ubuntu1~18.04.2/+build/21335731/+files/docker.io_20.10.2-0ubuntu1~18.04.2_arm64.deb
+            sudo dpkg -i docker.io_20.10.2-0ubuntu1~18.04.2_arm64.deb
+            rm docker.io_20.10.2-0ubuntu1~18.04.2_arm64.deb
+            sudo apt install containerd=1.5.2-0ubuntu1~18.04.3
             sudo apt update
             sudo apt upgrade -y
+      - run:
+          name: Build Docker image
+          command: |
             chmod +x run_docker.sh
             ./run_docker.sh
 
