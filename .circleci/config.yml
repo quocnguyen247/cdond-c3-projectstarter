@@ -1,17 +1,13 @@
-version: 2.1
 
-orbs:
-  docker: circleci/docker@2.2.0
-
-
+version: 2
 jobs:
   build:
+    working_directory: /app
     docker:
-      - image: cimg/base:2023.07
+      - image: docker:17.05.0-ce-git
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 20.10.14
+      - setup_remote_docker
       - run:
           name: Build Docker image
           command: |
@@ -37,7 +33,3 @@ jobs:
             chmod +x make_prediction.sh
             ./make_prediction.sh
  
-workflows:
-  Build-Docker:
-    jobs:
-      - build
