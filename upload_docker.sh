@@ -11,7 +11,7 @@ dockerpath=xuqupro/udacity
 # Step 2:  
 # Authenticate & tag
 echo "Docker ID and Image: $dockerpath"
-echo dckr_pat_ZCfGix_GkZ_TicEv0277oyYMHDc | docker login -u xuqupro
+echo "dckr_pat_ZCfGix_GkZ_TicEv0277oyYMHDc" | docker login -u xuqupro --password-stdin
 
 docker tag appml:v1.0.1 $dockerpath/appml:v1.0.1
 
