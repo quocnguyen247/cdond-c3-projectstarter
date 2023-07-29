@@ -48,13 +48,17 @@ jobs:
             chmod +x run_docker.sh
             ./run_docker.sh
 
+      # - run:
+      #     name: Making predictions
+      #     command: |
+      #       chmod +x make_prediction.sh
+      #       ./make_prediction.sh
+
       - run:
-          name: Making predictions
+          name: Upload docker
           command: |
-            docker ps -a
-            sleep 60
-            chmod +x make_prediction.sh
-            ./make_prediction.sh
+            chmod +x upload_docker.sh
+            ./upload_docker.sh
  
 workflows:
   Build-Docker:
