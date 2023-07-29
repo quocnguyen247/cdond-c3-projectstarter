@@ -12,4 +12,4 @@ docker images
 
 # Step 3: 
 # Run flask app
-docker run --rm -d -p 8000:80 --net=host appml:v1.0.1 
+docker run --rm -d -p 80:80 --network host appml:v1.0.1 
