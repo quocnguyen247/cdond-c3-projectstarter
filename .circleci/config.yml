@@ -1,16 +1,18 @@
+version: 2.1
 
-version: 2
 jobs:
   build:
-    working_directory: /app
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: cimg/base:2023.07
     steps:
       - checkout
       - setup_remote_docker
       - run:
           name: Build Docker image
           command: |
+            sudo apt update
+            sudo apt upgrade -y
+            docker -version
             chmod +x run_docker.sh
             ./run_docker.sh
 
@@ -30,3 +32,7 @@ jobs:
             chmod +x make_prediction.sh
             ./make_prediction.sh
  
+workflows:
+  Build-Docker:
+    jobs:
+      - build
