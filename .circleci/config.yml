@@ -15,8 +15,8 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            apt update
-            apt upgrade -y
+            sudo apt update
+            sudo apt upgrade -y
             chmod +x run_docker.sh
             ./run_docker.sh
 
