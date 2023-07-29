@@ -1,3 +1,4 @@
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/quocnguyen247/cdond-c3-projectstarter/tree/project4_run_dockerfile.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/quocnguyen247/cdond-c3-projectstarter/tree/project4_run_dockerfile)
 <include a CircleCI status badge, here>
 
 ## Project Overview

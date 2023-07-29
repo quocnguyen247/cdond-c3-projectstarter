@@ -46,7 +46,7 @@ jobs:
           name: Build Docker image
           command: |
             chmod +x run_docker.sh
-            ./run_docker.sh
+            ./run_docker.sh > docker_out.txt
 
       # - run:
       #     name: Making predictions
