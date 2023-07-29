@@ -46,17 +46,15 @@ jobs:
           name: Build Docker image
           command: |
             chmod +x run_docker.sh
-            # ./run_docker.sh
+            ./run_docker.sh
 
       - run:
           name: Making predictions
           command: |
-            docker run --rm -d --network host --name my_nginx nginx
             docker ps -a
             sleep 60
-            curl http://localhost:80/
-            # chmod +x make_prediction.sh
-            # ./make_prediction.sh
+            chmod +x make_prediction.sh
+            ./make_prediction.sh
  
 workflows:
   Build-Docker:
