@@ -51,6 +51,7 @@ jobs:
       - run:
           name: Making predictions
           command: |
+            docker ps -a
             chmod +x make_prediction.sh
             ./make_prediction.sh
  
