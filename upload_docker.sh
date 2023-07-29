@@ -17,4 +17,4 @@ docker tag appml:v1.0.1 $dockerpath:v1.0.1
 
 # Step 3:
 # Push image to a docker repository
-docker push  $dockerpath/appml:v1.0.1
+docker push  $dockerpath:v1.0.1
