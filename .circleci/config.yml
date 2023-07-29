@@ -58,4 +58,5 @@ workflows:
   Build-Docker:
     jobs:
       - build-hadolint
-      - build-docker
+      - build-docker:
+          requires: [build-hadolint]
